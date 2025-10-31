@@ -1,4 +1,4 @@
-package br.com.aeris.aeris_user_config.model;
+package br.com.aeris.aeris_search_config.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

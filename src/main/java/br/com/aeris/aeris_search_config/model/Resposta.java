@@ -1,4 +1,4 @@
-package br.com.aeris.aeris_user_config.model;
+package br.com.aeris.aeris_search_config.model;
 
 import io.swagger.v3.core.util.Json;
 import jakarta.persistence.*;

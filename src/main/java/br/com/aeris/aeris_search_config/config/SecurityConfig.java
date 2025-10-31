@@ -1,4 +1,4 @@
-package br.com.aeris.aeris_user_config.config;
+package br.com.aeris.aeris_search_config.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
