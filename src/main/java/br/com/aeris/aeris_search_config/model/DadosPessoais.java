@@ -1,6 +1,5 @@
 package br.com.aeris.aeris_search_config.model;
 
-import br.com.aeris.aeris_user_config.model.Usuario;
 import jakarta.persistence.*;
 import lombok.Data;
 

@@ -15,7 +15,7 @@ public class TipoPergunta {
     private String descricao;
 
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pergunta_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "tipo_pergunta_id")
     private Pergunta pergunta;
 }
