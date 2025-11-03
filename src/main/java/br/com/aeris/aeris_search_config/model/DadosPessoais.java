@@ -3,7 +3,7 @@ package br.com.aeris.aeris_search_config.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -17,7 +17,10 @@ public class DadosPessoais {
     private String genero;
 
     @Column(nullable = false)
-    private LocalDateTime contratado_em;
+    private LocalDate contratado_em;
+
+    @Column(nullable = false)
+    private LocalDate data_nascimento;
 
     @Column(nullable = false)
     private String setor;
