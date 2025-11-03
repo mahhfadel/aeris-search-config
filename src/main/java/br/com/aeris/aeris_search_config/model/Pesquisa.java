@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,10 +17,19 @@ public class Pesquisa {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime criadoEm;
+    private LocalDate criadoEm;
 
-    @Column(nullable = false, unique = true)
-    private LocalDateTime prazo;
+    @Column(nullable = false)
+    private LocalDateTime FinalizadoEm;
+
+    @Column(nullable = false)
+    private LocalDate prazo;
+
+    @Column(nullable = false)
+    private String nome;
+
+    @Column(nullable = false)
+    private Long usuario_id;
 
     private Boolean ativo = true;
 

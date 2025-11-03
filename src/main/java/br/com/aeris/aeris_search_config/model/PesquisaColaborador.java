@@ -21,6 +21,9 @@ public class PesquisaColaborador {
     @Column(nullable = false)
     private String token;
 
+    @Column(nullable = false)
+    private boolean respondido;
+
     // Relacionamento com USUÁRIO
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
