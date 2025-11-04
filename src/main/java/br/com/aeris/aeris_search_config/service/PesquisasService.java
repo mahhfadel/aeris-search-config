@@ -1,7 +1,6 @@
 package br.com.aeris.aeris_search_config.service;
 
 import br.com.aeris.aeris_search_config.dto.PesquisaResponse;
-import br.com.aeris.aeris_search_config.model.Empresa;
 import br.com.aeris.aeris_search_config.model.Pesquisa;
 import br.com.aeris.aeris_search_config.model.PesquisaColaborador;
 import br.com.aeris.aeris_search_config.model.Usuario;
@@ -57,7 +56,7 @@ public class PesquisasService {
         pesquisa.setCriadoEm(LocalDate.now());
         pesquisa.setPrazo(LocalDate.now().plus(Period.ofDays(30)));
         pesquisa.setNome(String.format("Pesquisa #%03d", (long) quantPesquisasEmpresa.size()));
-        pesquisa.setUsuario_id(usuario.getId());
+        pesquisa.setUsuarioId(usuario.getId());
         pesquisa.setAtivo(true);
         pesquisa.setEmpresa(usuario.getEmpresa());
 
@@ -87,6 +86,7 @@ public class PesquisasService {
                     .idPesquisa(pesquisa.getId())
                     .nome(pesquisa.getNome())
                     .criadoEm(pesquisa.getCriadoEm())
+                    .finalizadoEm(pesquisa.getFinalizadoEm())
                     .prazo(pesquisa.getPrazo())
                     .ativo(pesquisa.getAtivo())
                     .totalUsuarios((long) usuariosAssociados.size())
@@ -112,12 +112,17 @@ public class PesquisasService {
             throw new EntityNotFoundException("Não existe uma pesquisa com esse id");
         }
 
+        List<PesquisaColaborador> usuariosAssociados = pesquisaColaboradorRepository.findByPesquisa(pesquisa);
+
         return PesquisaResponse.builder()
                 .idPesquisa(pesquisa.getId())
                 .nome(pesquisa.getNome())
                 .criadoEm(pesquisa.getCriadoEm())
+                .finalizadoEm(pesquisa.getFinalizadoEm())
                 .prazo(pesquisa.getPrazo())
                 .ativo(pesquisa.getAtivo())
+                .totalUsuarios((long) usuariosAssociados.size())
+                .respondidos(usuariosAssociados.stream().filter(u -> Objects.equals(u.isRespondido(), true)).count())
                 .mensagem("Pesquisa retornada com sucesso")
                 .build();
     }

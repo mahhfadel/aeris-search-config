@@ -1,8 +1,7 @@
 package br.com.aeris.aeris_search_config.controller;
 
-import br.com.aeris.aeris_search_config.dto.ErrorResponse;
-import br.com.aeris.aeris_search_config.dto.PesquisaResponse;
-import br.com.aeris.aeris_search_config.service.PesquisasService;
+import br.com.aeris.aeris_search_config.dto.*;
+import br.com.aeris.aeris_search_config.service.PerguntaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,17 +14,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/pesquisa")
-@Tag(name = "Pesquisas", description = "Endpoints para gerenciamento de pesquisas")
-public class PesquisasController {
+@RequestMapping("/api/pergunta")
+@Tag(name = "Perguntas", description = "Endpoints para gerenciamento de perguntas")
+public class PerguntaController {
     @Autowired
-    private PesquisasService pesquisasService;
+    private PerguntaService perguntaService;
 
-    @PostMapping("/criar-pesquisa")
-    @Operation(summary = "Criar pesquisa", description = "Endpoint para criar uma nova pesquisa")
-    public ResponseEntity<?> createPesquisa(@RequestParam String token) {
+    @PostMapping("/adicionar-pergunta")
+    @Operation(summary = "Adicionar pergunta", description = "Endpoint para adicionar novas perguntas")
+    public ResponseEntity<?> createPergunta(@RequestBody PerguntaRequest request) {
         try {
-            PesquisaResponse response = pesquisasService.createPesquisa(token);
+            PerguntaResponse response = perguntaService.adicionarPergunta(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             // Erro de validação (400)
@@ -36,6 +35,51 @@ public class PesquisasController {
 
                     .build();
             return ResponseEntity.badRequest().body(error);
+
+        } catch (EntityNotFoundException e) {
+            // Não encontrado (404)
+            ErrorResponse error = ErrorResponse.builder()
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .message(e.getMessage())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+
+        } catch (Exception e) {
+            // Erro genérico (500)
+            ErrorResponse error = ErrorResponse.builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Erro interno no servidor")
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    @PatchMapping("/atualizar-perunta")
+    @Operation(summary = "Finalizar pesquisa", description = "Endpoint para finalizar uma pesquisa")
+    public ResponseEntity<?> atualizarPergunta(@RequestParam Long idPergunta, @RequestBody PerguntaRequest request) {
+        try {
+            PerguntaResponse response = perguntaService.atualizarPergunta(idPergunta, request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            // Erro de validação (400)
+            ErrorResponse error = ErrorResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(e.getMessage())
+                    .timestamp(LocalDateTime.now())
+
+                    .build();
+            return ResponseEntity.badRequest().body(error);
+
+        } catch (EntityNotFoundException e) {
+            // Não encontrado (404)
+            ErrorResponse error = ErrorResponse.builder()
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .message(e.getMessage())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 
         } catch (Exception e) {
             // Erro genérico (500)
@@ -49,73 +93,11 @@ public class PesquisasController {
     }
 
     @GetMapping("/getAll")
-    @Operation(summary = "Retornar todas pesquisas de uma empresa", description = "Endpoint para retornar todas as pesquisas de uma empresa")
-    public ResponseEntity<?> getAllPesquisas(@RequestParam Long empresa) {
+    @Operation(summary = "Retornar todas as pergunta de uma pesquisa", description = "Endpoint para retornar todas as pergunta de uma pesquisa")
+    public ResponseEntity<?> getAllPesquisas(@RequestParam Long pesquisa) {
         try {
-            List<PesquisaResponse> response = pesquisasService.getAllPesquisas(empresa);
+            List<PerguntaResponse> response = perguntaService.getAllPerguntas(pesquisa);
             return ResponseEntity.ok(response);
-        } catch (EntityNotFoundException e) {
-            // Não encontrado (404)
-            ErrorResponse error = ErrorResponse.builder()
-                    .status(HttpStatus.NOT_FOUND.value())
-                    .message(e.getMessage())
-                    .timestamp(LocalDateTime.now())
-                    .build();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-
-        } catch (Exception e) {
-            // Erro genérico (500)
-            ErrorResponse error = ErrorResponse.builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Erro interno no servidor")
-                    .timestamp(LocalDateTime.now())
-                    .build();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-        }
-    }
-
-    @GetMapping("/retornar-pesquisa")
-    @Operation(summary = "Retornar pesquisa", description = "Endpoint para retornar uma pesquisa")
-    public ResponseEntity<?> readPesquisa(@RequestParam Long idPesquisa) {
-        try {
-            PesquisaResponse response = pesquisasService.getPesquisa(idPesquisa);
-            return ResponseEntity.ok(response);
-        } catch (EntityNotFoundException e) {
-            // Não encontrado (404)
-            ErrorResponse error = ErrorResponse.builder()
-                    .status(HttpStatus.NOT_FOUND.value())
-                    .message(e.getMessage())
-                    .timestamp(LocalDateTime.now())
-                    .build();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-
-        } catch (Exception e) {
-            // Erro genérico (500)
-            ErrorResponse error = ErrorResponse.builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Erro interno no servidor")
-                    .timestamp(LocalDateTime.now())
-                    .build();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-        }
-    }
-
-    @PatchMapping("/finalizar-pesquisa")
-    @Operation(summary = "Finalizar pesquisa", description = "Endpoint para finalizar uma pesquisa")
-    public ResponseEntity<?> finalizarPesquisa(@RequestParam Long idPesquisa) {
-        try {
-            PesquisaResponse response = pesquisasService.finalizarPesquisa(idPesquisa);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            // Erro de validação (400)
-            ErrorResponse error = ErrorResponse.builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message(e.getMessage())
-                    .timestamp(LocalDateTime.now())
-
-                    .build();
-            return ResponseEntity.badRequest().body(error);
-
         } catch (EntityNotFoundException e) {
             // Não encontrado (404)
             ErrorResponse error = ErrorResponse.builder()

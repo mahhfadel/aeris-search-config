@@ -1,7 +1,6 @@
 package br.com.aeris.aeris_search_config.service;
 
 import br.com.aeris.aeris_search_config.dto.ColaboradorResponse;
-import br.com.aeris.aeris_search_config.dto.PesquisaResponse;
 import br.com.aeris.aeris_search_config.model.DadosPessoais;
 import br.com.aeris.aeris_search_config.model.Pesquisa;
 import br.com.aeris.aeris_search_config.model.PesquisaColaborador;
@@ -9,6 +8,7 @@ import br.com.aeris.aeris_search_config.model.Usuario;
 import br.com.aeris.aeris_search_config.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 
@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@Service
 public class ColaboradorService {
 
     @Autowired
@@ -35,9 +36,6 @@ public class ColaboradorService {
     private DadosPessoaisRepository dadosPessoaisRepository;
 
     @Autowired
-    private EmpresaRepository empresaRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public ColaboradorResponse adicionarColaborador(List<Long> colaboradores, Long pesquisaId){
@@ -46,13 +44,15 @@ public class ColaboradorService {
         for(Long colaborador: colaboradores){
             Usuario usuario = usuarioRepository.getReferenceById(colaborador);
 
-            String chave = gerarChaveAleatoria();
+            String chave = "123456"; //gerarChaveAleatoria();
 
             PesquisaColaborador novoColaboradorPesquisa = new PesquisaColaborador();
             novoColaboradorPesquisa.setPesquisa(pesquisa);
             novoColaboradorPesquisa.setUsuario(usuario);
             novoColaboradorPesquisa.setRespondido(false);
             novoColaboradorPesquisa.setToken(passwordEncoder.encode(chave));
+
+            pesquisaColaboradorRepository.save(novoColaboradorPesquisa);
         }
 
         return ColaboradorResponse.builder()
@@ -95,7 +95,7 @@ public class ColaboradorService {
                     .genero(dadosPessoais.getGenero())
                     .setor(dadosPessoais.getSetor())
                     .cargo(dadosPessoais.getCargo())
-                    .tempoDeCasa(formatarPeriodo(dadosPessoais.getContratado_em()))
+                    .tempoDeCasa(formatarPeriodo(dadosPessoais.getContratadoEm()))
                     .respondidos(pesquisasColaborador.stream().filter(u ->Objects.equals(u.isRespondido(), true) ).count())
                     .total((long) pesquisasColaborador.size())
                     .build();

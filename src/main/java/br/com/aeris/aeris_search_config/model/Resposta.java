@@ -18,22 +18,22 @@ public class Resposta {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime criado_em;
+    private LocalDateTime criadoEm;
 
     @Column(columnDefinition = "TEXT")
     private String resposta;
 
     @Column(nullable = false)
-    private Long pergunta_id;
+    private Long perguntaId;
 
     @Column(nullable = false)
-    private Long pesquisa_id;
+    private Long pesquisaId;
 
     @Column(nullable = false)
-    private Long usuario_id;
+    private Long usuarioId;
 
     @Column(nullable = false)
-    private LocalDateTime alterado_em;
+    private LocalDateTime alteradoEm;
 
     @Transient
     public JsonNode getJsonDataAsNode() {

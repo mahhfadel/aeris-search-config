@@ -14,8 +14,7 @@ public class Opcoes {
     @Column(nullable = false)
     private String descricao;
 
-
-    @ManyToOne
-    @JoinColumn(name = "tipo_pergunta_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tipoPerguntaId", nullable = false)
     private TipoPergunta tipoPergunta;
 }

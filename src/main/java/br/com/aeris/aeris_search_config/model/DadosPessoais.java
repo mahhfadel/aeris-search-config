@@ -17,10 +17,10 @@ public class DadosPessoais {
     private String genero;
 
     @Column(nullable = false)
-    private LocalDate contratado_em;
+    private LocalDate contratadoEm;
 
     @Column(nullable = false)
-    private LocalDate data_nascimento;
+    private LocalDate dataNascimento;
 
     @Column(nullable = false)
     private String setor;
@@ -32,7 +32,7 @@ public class DadosPessoais {
     private String sexualidade;
 
     @Column(nullable = false)
-    private boolean termos_de_uso;
+    private boolean termosDeUso;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)

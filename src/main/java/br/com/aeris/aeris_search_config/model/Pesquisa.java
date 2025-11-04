@@ -29,7 +29,7 @@ public class Pesquisa {
     private String nome;
 
     @Column(nullable = false)
-    private Long usuario_id;
+    private Long usuarioId;
 
     private Boolean ativo = true;
 

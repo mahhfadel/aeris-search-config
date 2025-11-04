@@ -16,7 +16,7 @@ public class Pergunta {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime criado_em;
+    private LocalDateTime criadoEm;
 
     @Column(nullable = false)
     private String pergunta;
@@ -25,10 +25,9 @@ public class Pergunta {
     private String adjetivo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pesquisa_id", nullable = false)
+    @JoinColumn(name = "pesquisaId", nullable = false)
     private Pesquisa pesquisa;
 
-    @ManyToOne
-    @JoinColumn(name = "tipo_pergunta_id")
+    @OneToOne(mappedBy = "pergunta", cascade = CascadeType.ALL, orphanRemoval = true)
     private TipoPergunta tipoPergunta;
 }

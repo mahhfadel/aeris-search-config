@@ -16,7 +16,7 @@ public class Empresa {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime criado_em;
+    private LocalDateTime criadoEm;
 
     @Column(nullable = false)
     private String nome;
