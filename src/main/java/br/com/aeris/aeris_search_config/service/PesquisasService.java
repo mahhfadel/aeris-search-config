@@ -55,7 +55,7 @@ public class PesquisasService {
         Pesquisa pesquisa = new Pesquisa();
         pesquisa.setCriadoEm(LocalDate.now());
         pesquisa.setPrazo(LocalDate.now().plus(Period.ofDays(30)));
-        pesquisa.setNome(String.format("Pesquisa #%03d", (long) quantPesquisasEmpresa.size()));
+        pesquisa.setNome(String.format("Pesquisa #%03d", (long) quantPesquisasEmpresa.size()+1));
         pesquisa.setUsuarioId(usuario.getId());
         pesquisa.setAtivo(true);
         pesquisa.setEmpresa(usuario.getEmpresa());

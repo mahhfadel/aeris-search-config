@@ -28,6 +28,7 @@ public class Pergunta {
     @JoinColumn(name = "pesquisaId", nullable = false)
     private Pesquisa pesquisa;
 
-    @OneToOne(mappedBy = "pergunta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tipo_pergunta_id")
     private TipoPergunta tipoPergunta;
 }

@@ -53,6 +53,7 @@ public class PerguntaService {
         TipoPergunta tipoPerguntaSalva = tipoPerguntaRepository.save(tipoPergunta);
 
         perguntaSalva.setTipoPergunta(tipoPerguntaSalva);
+        perguntaSalva = perguntaRepository.save(perguntaSalva);
 
         if ("opcoes".equalsIgnoreCase(request.getTipoPergunta()) &&
                 request.getOpcoes() != null && !request.getOpcoes().isEmpty()) {
@@ -85,74 +86,57 @@ public class PerguntaService {
                         "Pergunta não encontrada com ID: " + idPergunta
                 ));
 
-        if (request.getPesquisaId() != null &&
-                !pergunta.getPesquisa().getId().equals(request.getPesquisaId())) {
-            Pesquisa novaPesquisa = pesquisaRepository.findById(request.getPesquisaId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "Pesquisa não encontrada com ID: " + request.getPesquisaId()
-                    ));
-            pergunta.setPesquisa(novaPesquisa);
-        }
-
         pergunta.setPergunta(request.getPergunta());
         pergunta.setAdjetivo(request.getAdjetivo());
 
-        TipoPergunta tipoAtual = pergunta.getTipoPergunta();
-        String novoTipo = request.getTipoPergunta();
+        if (request.getPesquisaId() != null &&
+                (pergunta.getPesquisa() == null ||
+                        !pergunta.getPesquisa().getId().equals(request.getPesquisaId()))) {
 
-        if (tipoAtual == null || !tipoAtual.getDescricao().equalsIgnoreCase(novoTipo)) {
-            if (tipoAtual != null) {
-                List<Opcoes> opcoesAntigas = opcoesRepository.findByTipoPergunta(tipoAtual);
-                if (!opcoesAntigas.isEmpty()) {
-                    opcoesRepository.deleteAll(opcoesAntigas);
-                }
-            }
-
-            if (tipoAtual != null) {
-                tipoAtual.setDescricao(novoTipo);
-            } else {
-                TipoPergunta novoTipoPergunta = new TipoPergunta();
-                novoTipoPergunta.setDescricao(novoTipo);
-                novoTipoPergunta.setPergunta(pergunta);
-                TipoPergunta tipoSalvo = tipoPerguntaRepository.save(novoTipoPergunta);
-                pergunta.setTipoPergunta(tipoSalvo);
-                tipoAtual = tipoSalvo;
-            }
+            Pesquisa pesquisa = pesquisaRepository.findById(request.getPesquisaId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Pesquisa não encontrada com ID: " + request.getPesquisaId()
+                    ));
+            pergunta.setPesquisa(pesquisa);
         }
 
-        if ("opcoes".equalsIgnoreCase(novoTipo)) {
-            List<Opcoes> opcoesAntigas = opcoesRepository.findByTipoPergunta(tipoAtual);
+        TipoPergunta tipoPergunta = pergunta.getTipoPergunta();
+        if (tipoPergunta == null) {
+            tipoPergunta = new TipoPergunta();
+            tipoPergunta.setPergunta(pergunta);
+        }
+        tipoPergunta.setDescricao(request.getTipoPergunta());
+        tipoPergunta = tipoPerguntaRepository.save(tipoPergunta);
+
+        pergunta.setTipoPergunta(tipoPergunta);
+        perguntaRepository.save(pergunta);
+
+        if ("opcoes".equalsIgnoreCase(request.getTipoPergunta())) {
+            List<Opcoes> opcoesAntigas = opcoesRepository.findByTipoPergunta(tipoPergunta);
             if (!opcoesAntigas.isEmpty()) {
                 opcoesRepository.deleteAll(opcoesAntigas);
             }
 
             if (request.getOpcoes() != null && !request.getOpcoes().isEmpty()) {
-                TipoPergunta finalTipoAtual = tipoAtual;
+                TipoPergunta finalTipoPergunta = tipoPergunta;
                 List<Opcoes> novasOpcoes = request.getOpcoes().stream()
                         .map(req -> {
                             Opcoes o = new Opcoes();
                             o.setDescricao(req.getDescricao());
-                            o.setTipoPergunta(finalTipoAtual);
+                            o.setTipoPergunta(finalTipoPergunta);
                             return o;
                         })
                         .toList();
 
                 opcoesRepository.saveAll(novasOpcoes);
             }
-        } else {
-            List<Opcoes> opcoesExistentes = opcoesRepository.findByTipoPergunta(tipoAtual);
-            if (!opcoesExistentes.isEmpty()) {
-                opcoesRepository.deleteAll(opcoesExistentes);
-            }
         }
-
-        Pergunta perguntaAtualizada = perguntaRepository.save(pergunta);
 
         return PerguntaResponse.builder()
                 .mensagem("Pergunta atualizada com sucesso")
-                .id(perguntaAtualizada.getId())
-                .pergunta(perguntaAtualizada.getPergunta())
-                .adjetivo(perguntaAtualizada.getAdjetivo())
+                .id(pergunta.getId())
+                .pergunta(pergunta.getPergunta())
+                .adjetivo(pergunta.getAdjetivo())
                 .build();
     }
 
