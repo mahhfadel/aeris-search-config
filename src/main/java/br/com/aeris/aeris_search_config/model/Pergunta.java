@@ -24,6 +24,8 @@ public class Pergunta {
     @Column(nullable = false)
     private String adjetivo;
 
+    private boolean visible;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pesquisaId", nullable = false)
     private Pesquisa pesquisa;

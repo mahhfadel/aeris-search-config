@@ -43,6 +43,7 @@ public class PerguntaService {
         pergunta.setPergunta(request.getPergunta());
         pergunta.setAdjetivo(request.getAdjetivo());
         pergunta.setPesquisa(pesquisa);
+        pergunta.setVisible(true);
 
         Pergunta perguntaSalva = perguntaRepository.save(pergunta);
 
@@ -141,7 +142,8 @@ public class PerguntaService {
     }
 
     public List<PerguntaResponse> getAllPerguntas(Long pesquisa){
-        List<Pergunta> perguntas = perguntaRepository.findByPesquisa(pesquisaRepository.getReferenceById(pesquisa));
+        List<Pergunta> perguntas = perguntaRepository.findByPesquisa(pesquisaRepository.getReferenceById(pesquisa)).stream()
+                .filter(Pergunta::isVisible).toList();
 
         if(perguntas == null){
             throw new EntityNotFoundException("Essa pesquisa ainda não possui perguntas");
@@ -186,6 +188,23 @@ public class PerguntaService {
         );
 
         return responses;
+    }
+
+    public PerguntaResponse deletarPergunta(Long idPergunta) {
+        Pergunta pergunta = perguntaRepository.findById(idPergunta)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Pergunta não encontrada com ID: " + idPergunta
+                ));
+
+        pergunta.setVisible(false);
+        perguntaRepository.save(pergunta);
+
+        return PerguntaResponse.builder()
+                .mensagem("Pergunta deletada com sucesso")
+                .id(pergunta.getId())
+                .pergunta(pergunta.getPergunta())
+                .adjetivo(pergunta.getAdjetivo())
+                .build();
     }
 
 }

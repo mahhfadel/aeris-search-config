@@ -26,7 +26,7 @@ public class ColaboradorController {
 
     @PostMapping("/adicionar")
     @Operation(summary = "Adicionar colaboradores a uma pesquisa", description = "Endpoint para adicionar colaboradores a uma pesquisa")
-    public ResponseEntity<?> createPesquisa(@RequestBody List<Long> colaboradores, @RequestParam Long pesquisaId) {
+    public ResponseEntity<?> adiconarColaboradores(@RequestBody List<Long> colaboradores, @RequestParam Long pesquisaId) {
         try {
             ColaboradorResponse response = colaboradorService.adicionarColaborador(colaboradores, pesquisaId);
             return ResponseEntity.ok(response);
