@@ -5,8 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Entity
@@ -20,7 +24,11 @@ public class Resposta {
     @Column(nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
-    @Column(columnDefinition = "TEXT")
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime alteradoEm;
+
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String resposta;
 
     @Column(nullable = false)
@@ -32,9 +40,10 @@ public class Resposta {
     @Column(nullable = false)
     private Long usuarioId;
 
-    @Column(nullable = false)
-    private LocalDateTime alteradoEm;
+    @Column(nullable = false, length = 20)
+    private String tipoPergunta;
 
+    // Helper methods
     @Transient
     public JsonNode getJsonDataAsNode() {
         try {
@@ -52,5 +61,26 @@ public class Resposta {
         } catch (Exception e) {
             this.resposta = null;
         }
+    }
+
+    public void setRespostaDescritiva(String texto) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("tipo", "descritiva");
+        data.put("texto", texto);
+        setJsonDataFromObject(data);
+    }
+
+    public void setRespostaEscala(String valor) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("tipo", "escala");
+        data.put("valor", valor);
+        setJsonDataFromObject(data);
+    }
+
+    public void setRespostaOpcoes(List<String> opcoes) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("tipo", "opcoes");
+        data.put("opcoes", opcoes);
+        setJsonDataFromObject(data);
     }
 }

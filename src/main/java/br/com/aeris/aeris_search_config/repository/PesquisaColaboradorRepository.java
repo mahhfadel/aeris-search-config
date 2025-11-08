@@ -16,4 +16,6 @@ public interface PesquisaColaboradorRepository extends JpaRepository<PesquisaCol
     List<PesquisaColaborador> findByPesquisa(Pesquisa pesquisa);
 
     Optional<PesquisaColaborador> findByToken(String token);
+
+    PesquisaColaborador findByPesquisaIdAndUsuarioId(Long pesquisaId, Long usuarioId);
 }
