@@ -10,7 +10,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.security.SecureRandom;
 
 import java.time.LocalDate;
@@ -41,39 +42,54 @@ public class ColaboradorService {
 
     private final EmailService emailService;
 
+    private static final Logger logger = LoggerFactory.getLogger(ColaboradorService.class);
+
     public ColaboradorService(EmailService emailService) {
         this.emailService = emailService;
     }
 
     @Transactional
-    public ColaboradorResponse adicionarColaborador(List<Long> colaboradores, Long pesquisaId){
+    public ColaboradorResponse adicionarColaborador(List<Long> colaboradores, Long pesquisaId) {
+        logger.info("Iniciando adição de {} colaboradores à pesquisa com ID {}", colaboradores.size(), pesquisaId);
+
         Pesquisa pesquisa = pesquisaRepository.getReferenceById(pesquisaId);
 
-        for(Long colaborador: colaboradores){
-            Usuario usuario = usuarioRepository.getReferenceById(colaborador);
+        for (Long colaboradorId : colaboradores) {
+            try {
+                Usuario usuario = usuarioRepository.getReferenceById(colaboradorId);
+                String chave = gerarChaveAleatoria();
 
-            String chave = gerarChaveAleatoria();
+                PesquisaColaborador novoColaboradorPesquisa = new PesquisaColaborador();
+                novoColaboradorPesquisa.setPesquisa(pesquisa);
+                novoColaboradorPesquisa.setUsuario(usuario);
+                novoColaboradorPesquisa.setRespondido(false);
+                novoColaboradorPesquisa.setToken(passwordEncoder.encode(chave));
 
-            PesquisaColaborador novoColaboradorPesquisa = new PesquisaColaborador();
-            novoColaboradorPesquisa.setPesquisa(pesquisa);
-            novoColaboradorPesquisa.setUsuario(usuario);
-            novoColaboradorPesquisa.setRespondido(false);
-            novoColaboradorPesquisa.setToken(passwordEncoder.encode(chave));
+                pesquisaColaboradorRepository.save(novoColaboradorPesquisa);
 
-            pesquisaColaboradorRepository.save(novoColaboradorPesquisa);
+                logger.debug("Colaborador {} adicionado à pesquisa {}", usuario.getEmail(), pesquisa.getNome());
 
-            emailService.enviarEmailNovaPesquisa(
-                    usuario.getEmail(),
-                    usuario.getNome(),
-                    usuario.getEmpresa().getNome(),
-                    chave
-            );
+                emailService.enviarEmailNovaPesquisa(
+                        usuario.getEmail(),
+                        usuario.getNome(),
+                        usuario.getEmpresa().getNome(),
+                        chave
+                );
+
+                logger.info("Email enviado para {}", usuario.getEmail());
+
+            } catch (Exception e) {
+                logger.error("Erro ao adicionar colaborador com ID {} à pesquisa {}: {}", colaboradorId, pesquisaId, e.getMessage(), e);
+            }
         }
 
+        logger.info("{} colaboradores adicionados com sucesso à pesquisa '{}'", colaboradores.size(), pesquisa.getNome());
+
         return ColaboradorResponse.builder()
-                .mensagem(String.format("%d novos colaboradores adicionado com sucesso à pesquisa %s", colaboradores.size(), pesquisa.getNome()))
+                .mensagem(String.format("%d novos colaboradores adicionados com sucesso à pesquisa %s", colaboradores.size(), pesquisa.getNome()))
                 .build();
     }
+
 
     public static String gerarChaveAleatoria() {
         SecureRandom RANDOM = new SecureRandom();
@@ -90,38 +106,60 @@ public class ColaboradorService {
         return chave.toString();
     }
 
-    public List<ColaboradorResponse> getAllColaboradoresUsers(Long empresa, Long pesquisa){
-        List<PesquisaColaborador> colaboradores = pesquisaColaboradorRepository.findByPesquisa(pesquisaRepository.getReferenceById(pesquisa));
+    public List<ColaboradorResponse> getAllColaboradoresUsers(Long empresa, Long pesquisaId) {
+        logger.info("Buscando colaboradores da empresa {} para a pesquisa {}", empresa, pesquisaId);
+
+        List<PesquisaColaborador> colaboradores = pesquisaColaboradorRepository.findByPesquisa(
+                pesquisaRepository.getReferenceById(pesquisaId)
+        );
+
+        logger.debug("Foram encontrados {} registros de colaboradores para a pesquisa {}", colaboradores.size(), pesquisaId);
 
         List<ColaboradorResponse> responses = new ArrayList<>();
 
-        for(PesquisaColaborador colaborador: colaboradores){
-            Usuario usuario = usuarioRepository.getReferenceById(colaborador.getUsuario().getId());
-            DadosPessoais dadosPessoais = dadosPessoaisRepository.findByUsuario(usuario);
-            if(dadosPessoais ==null){
-                dadosPessoais = new DadosPessoais();
+        for (PesquisaColaborador colaborador : colaboradores) {
+            try {
+                Usuario usuario = usuarioRepository.getReferenceById(colaborador.getUsuario().getId());
+                DadosPessoais dadosPessoais = dadosPessoaisRepository.findByUsuario(usuario);
+
+                if (dadosPessoais == null) {
+                    logger.warn("Usuário {} ({}) não possui dados pessoais cadastrados.", usuario.getEmail(), usuario.getId());
+                    dadosPessoais = new DadosPessoais(); // Evita NullPointerException
+                }
+
+                List<PesquisaColaborador> pesquisasColaborador = pesquisaColaboradorRepository.findByUsuario(usuario);
+
+                long respondidos = pesquisasColaborador.stream()
+                        .filter(PesquisaColaborador::isRespondido)
+                        .count();
+
+                ColaboradorResponse response = ColaboradorResponse.builder()
+                        .id(colaborador.getId())
+                        .nome(usuario.getNome().concat(" ").concat(usuario.getSobrenome()))
+                        .email(usuario.getEmail())
+                        .genero(dadosPessoais.getGenero())
+                        .setor(dadosPessoais.getSetor())
+                        .cargo(dadosPessoais.getCargo())
+                        .tempoDeCasa(formatarPeriodo(dadosPessoais.getContratadoEm()))
+                        .respondidos(respondidos)
+                        .total((long) pesquisasColaborador.size())
+                        .build();
+
+                responses.add(response);
+
+                logger.debug("Colaborador processado: {} ({})", usuario.getEmail(), usuario.getId());
+
+            } catch (Exception e) {
+                logger.error("Erro ao processar colaborador ID {}: {}", colaborador.getUsuario().getId(), e.getMessage(), e);
             }
-            List<PesquisaColaborador> pesquisasColaborador = pesquisaColaboradorRepository.findByUsuario(usuario);
-
-            ColaboradorResponse response = ColaboradorResponse.builder()
-                    .id(colaborador.getId())
-                    .nome(usuario.getNome().concat(" ").concat(usuario.getSobrenome()))
-                    .email(usuario.getEmail())
-                    .genero(dadosPessoais.getGenero())
-                    .setor(dadosPessoais.getSetor())
-                    .cargo(dadosPessoais.getCargo())
-                    .tempoDeCasa(formatarPeriodo(dadosPessoais.getContratadoEm()))
-                    .respondidos(pesquisasColaborador.stream().filter(u ->Objects.equals(u.isRespondido(), true) ).count())
-                    .total((long) pesquisasColaborador.size())
-                    .build();
-
-            responses.add(response);
         }
 
         responses.sort(Comparator.comparing(ColaboradorResponse::getNome, String.CASE_INSENSITIVE_ORDER));
+        logger.info("Total de colaboradores retornados: {}", responses.size());
 
         return responses;
     }
+
 
     public static String formatarPeriodo(LocalDate data) {
         if (data == null) {
