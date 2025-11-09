@@ -21,6 +21,10 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private Long expiration;
 
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
     // Gerar token
     public String generateToken(String email, String nome, String tipo) {
         Map<String, Object> claims = new HashMap<>();
@@ -86,8 +90,29 @@ public class JwtUtil {
     }
 
     // Validar token
-    public Boolean validateToken(String token, String email) {
+    public Boolean validateToken(String token) {
         final String tokenEmail = extractEmail(token);
-        return (tokenEmail.equals(email) && !isTokenExpired(token));
+        return (!isTokenExpired(token));
+    }
+
+    public String getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.getSubject();
+    }
+
+    public boolean isAdminFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        String tipo = claims.get("tipo", String.class);
+        return "adm".equals(tipo);
     }
 }
