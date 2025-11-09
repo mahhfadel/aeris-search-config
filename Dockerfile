@@ -9,7 +9,7 @@ RUN mvn clean install
 
 FROM eclipse-temurin:21-jdk-alpine
 
-EXPOSE 8080
+EXPOSE 8082
 
 COPY --from=build /target/aeris-autentification-0.0.1-SNAPSHOT.jar app.jar
 
