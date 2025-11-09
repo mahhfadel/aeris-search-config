@@ -11,6 +11,7 @@ import br.com.aeris.aeris_search_config.repository.UsuarioRepository;
 import br.com.aeris.aeris_search_config.util.JwtUtil;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,7 @@ public class PesquisasService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Transactional
     public PesquisaResponse createPesquisa(String token){
         Usuario usuario = usuarioRepository.findByEmail(jwtUtil.extractEmail(token));
 

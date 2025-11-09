@@ -6,6 +6,7 @@ import br.com.aeris.aeris_search_config.model.Pesquisa;
 import br.com.aeris.aeris_search_config.model.PesquisaColaborador;
 import br.com.aeris.aeris_search_config.model.Usuario;
 import br.com.aeris.aeris_search_config.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,13 +39,20 @@ public class ColaboradorService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private final EmailService emailService;
+
+    public ColaboradorService(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
+    @Transactional
     public ColaboradorResponse adicionarColaborador(List<Long> colaboradores, Long pesquisaId){
         Pesquisa pesquisa = pesquisaRepository.getReferenceById(pesquisaId);
 
         for(Long colaborador: colaboradores){
             Usuario usuario = usuarioRepository.getReferenceById(colaborador);
 
-            String chave = "123456"; //gerarChaveAleatoria();
+            String chave = gerarChaveAleatoria();
 
             PesquisaColaborador novoColaboradorPesquisa = new PesquisaColaborador();
             novoColaboradorPesquisa.setPesquisa(pesquisa);
@@ -53,6 +61,13 @@ public class ColaboradorService {
             novoColaboradorPesquisa.setToken(passwordEncoder.encode(chave));
 
             pesquisaColaboradorRepository.save(novoColaboradorPesquisa);
+
+            emailService.enviarEmailNovaPesquisa(
+                    usuario.getEmail(),
+                    usuario.getNome(),
+                    usuario.getEmpresa().getNome(),
+                    chave
+            );
         }
 
         return ColaboradorResponse.builder()

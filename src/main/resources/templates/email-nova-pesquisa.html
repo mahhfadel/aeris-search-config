@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #F2F2F2;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #AC4A00, #006172);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .content {
+            padding: 30px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #AC4A00;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img
+            src="https://raw.githubusercontent.com/mahhfadel/Aeris/refs/heads/main/src/assets/Logo.svg"
+            alt="Logo"
+            width="200"
+            style="border-radius: 8px;"
+        />
+    </div>
+    <div class="content">
+        <h2>Olá, <span th:text="${nome}">Nome</span>!</h2>
+        <p>Responda agora sua nova pesquisa da empresa <span th:text="${empresa}">Empresa</span>.</p>
+        <b>Email: </b><span th:text="${email}">email</span>
+        <br>
+        <b>Chave da pesquisa: </b><span th:text="${chave}">chave</span>
+        <center>
+            <a href="https://aeris-ashen.vercel.app/login-colaborador" class="button">Responda agora</a>
+        </center>
+
+        <p>Se você tiver alguma dúvida, entre em contato com sua empresa, obrigada!</p>
+    </div>
+    <div class="footer">
+        <p>&copy; <span th:text="${anoAtual}">2025</span> Aeris. Todos os direitos reservados.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -18,6 +18,7 @@ public class CorsConfig {
         config.setAllowCredentials(true);
 
         config.setAllowedOrigins(Arrays.asList(
+                "https://aeris-ashen.vercel.app",
                 "http://localhost:3000",  // React padrão
                 "http://localhost:5173",  // Vite padrão
                 "http://localhost:4200"   // Angular padrão
