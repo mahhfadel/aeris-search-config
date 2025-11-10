@@ -19,7 +19,7 @@ public class Pesquisa {
     @Column(nullable = false, updatable = false)
     private LocalDate criadoEm;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime FinalizadoEm;
 
     @Column(nullable = false)
