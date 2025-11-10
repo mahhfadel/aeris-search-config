@@ -23,7 +23,6 @@ public class EmailService {
     private final TemplateEngine templateEngine;
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-    @Async
     public void enviarEmailHtml(String destinatario, String assunto,
                                 String template, Map<String, Object> variaveis) {
         log.info("[EmailService.enviarEmailHtml] Iniciando envio de email HTML para: {} | Assunto: {} | Template: {}", destinatario, assunto, template);
