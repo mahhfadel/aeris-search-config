@@ -43,6 +43,7 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/api/auth/login",
                                 "/api/auth/login-colaborador",
+                                "/api/keep/alive",
                                 "/h2-console/**"
                         ).permitAll()
                         .anyRequest().authenticated()
