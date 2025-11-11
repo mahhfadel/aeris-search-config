@@ -5,15 +5,15 @@ spring:
   application:
     name: aeris-search-config
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
+    url: jdbc:postgresql://dpg-d48lc2mmcj7s73e1fes0-a.oregon-postgres.render.com/aeris_bd_prod_113m
+    username: aeris_bd_prod_113m_user
+    password: BcPWyS1I2frsRD84Pi1G4fX1YineBiCS
     driver-class-name: org.postgresql.Driver
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${EMAIL_USERNAME}
-    password: ${EMAIL_PASSWORD}
+    username: plataforma.aeris@gmail.com
+    password: hblq fipk qtda nory
     properties:
       mail:
         smtp:
@@ -21,9 +21,10 @@ spring:
           starttls:
             enable: true
             required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+          connectiontimeout: 20000
+          timeout: 20000
+          writetimeout: 20000
+        debug: true
 
 
   jpa:

@@ -23,6 +23,7 @@ public class EmailService {
     private final TemplateEngine templateEngine;
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
+    @Async
     public void enviarEmailHtml(String destinatario, String assunto,
                                 String template, Map<String, Object> variaveis) {
         log.info("[EmailService.enviarEmailHtml] Iniciando envio de email HTML para: {} | Assunto: {} | Template: {}", destinatario, assunto, template);
@@ -47,11 +48,14 @@ public class EmailService {
             log.info("[EmailService.enviarEmailHtml] Email enviado com sucesso para: {}", destinatario);
 
         } catch (MessagingException e) {
-            log.error("[EmailService.enviarEmailHtml] Erro ao enviar email para: {} | Assunto: {}", destinatario, assunto, e);
-            throw new RuntimeException("Falha no envio do email", e);
+            log.error("[EmailService.enviarEmailHtml] Erro ao enviar email para: {} | Assunto: {}",
+                    destinatario, assunto, e);
+        } catch (Exception e) {
+            log.error("[EmailService.enviarEmailHtml] Erro inesperado ao enviar email", e);
         }
     }
 
+    @Async
     public void enviarEmailNovaPesquisa(String destinatario, String nome, String empresa, String chave) {
         log.info("[EmailService.enviarEmailNovaPesquisa] Preparando envio de email de nova pesquisa para: {} | Empresa: {}", destinatario, empresa);
 

@@ -69,14 +69,18 @@ public class ColaboradorService {
 
                 logger.debug("Colaborador {} adicionado à pesquisa {}", usuario.getEmail(), pesquisa.getNome());
 
-                emailService.enviarEmailNovaPesquisa(
-                        usuario.getEmail(),
-                        usuario.getNome(),
-                        usuario.getEmpresa().getNome(),
-                        chave
-                );
+                try {
+                    emailService.enviarEmailNovaPesquisa(
+                            usuario.getEmail(),
+                            usuario.getNome(),
+                            usuario.getEmpresa().getNome(),
+                            chave
+                    );
 
-                logger.info("Email enviado para {}", usuario.getEmail());
+                    logger.info("Email enviado para {}", usuario.getEmail());
+                } catch (Exception e) {
+                    logger.error("Erro ao agendar envio de email", e);
+                }
 
             } catch (Exception e) {
                 logger.error("Erro ao adicionar colaborador com ID {} à pesquisa {}: {}", colaboradorId, pesquisaId, e.getMessage(), e);
