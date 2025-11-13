@@ -1,5 +1,6 @@
 package br.com.aeris.aeris_search_config.model;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
@@ -83,4 +84,46 @@ public class Resposta {
         data.put("opcoes", opcoes);
         setJsonDataFromObject(data);
     }
+
+    @Transient
+    public String getRespostaDescritiva() {
+        try {
+            JsonNode node = getJsonDataAsNode();
+            if (node != null && "descritiva".equals(node.get("tipo").asText())) {
+                return node.get("texto").asText();
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    @Transient
+    public String getRespostaEscala() {
+        try {
+            JsonNode node = getJsonDataAsNode();
+            if (node != null && "escala".equals(node.get("tipo").asText())) {
+                return node.get("valor").asText();
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    @Transient
+    public List<String> getRespostaOpcoes() {
+        try {
+            JsonNode node = getJsonDataAsNode();
+            if (node != null && "opcoes".equals(node.get("tipo").asText())) {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode opcoesNode = node.get("opcoes");
+                return mapper.convertValue(opcoesNode, new TypeReference<List<String>>() {});
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
 }

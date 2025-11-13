@@ -11,6 +11,8 @@ import java.util.List;
 
 @Repository
 public interface RespostaRepository extends JpaRepository<Resposta, Long> {
+    List<Resposta> findByPerguntaId(Long perguntaId);
+
     List<Resposta> findByPesquisaIdAndUsuarioId(Long pesquisaId, Long usuarioId);
 
     boolean existsByPesquisaIdAndUsuarioId(Long pesquisaId, Long usuarioId);
